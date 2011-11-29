@@ -86,7 +86,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 	
 	private void envoyerImage(String imageId) {
 		String str1 = "5";
-		outDonnees.;
 		
 	}
 	
