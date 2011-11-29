@@ -8,12 +8,16 @@ import java.io.IOException;
 public class Serveur {
 	
 	private static final int PORT_CATALOGUE = 5020;
+	private static final int PORT_FLUX1 = 5022;
 	
 	public Serveur() {
 		String catalogue = lireCatalogue();
 		
 		ConnectionTCPCatalogue connectionCatalogue = new ConnectionTCPCatalogue(PORT_CATALOGUE, catalogue);
 		connectionCatalogue.start();
+		
+		ConnectionTCPVideo connectionFlux1 = new ConnectionTCPVideo(PORT_FLUX1, "C:\\perusse.bmp");
+		connectionFlux1.start();
 		
 		// autres lancements de threads
 	}

@@ -126,7 +126,12 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 		}
 		
 		
-		outDonnees.flush()
+		try {
+			outDonnees.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
