@@ -1,5 +1,9 @@
 package tpReseau;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -86,6 +90,43 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 	
 	private void envoyerImage(String imageId) {
 		String str1 = "5";
+		FileInputStream fichier = null;
+		
+		try {
+			fichier = new FileInputStream(imageId);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
+		int bit = -1;
+		try {
+			bit = fichier.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		while (bit != -1){
+			try {
+				outDonnees.write(bit);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			try {
+				bit = fichier.read();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		outDonnees.flush()
 		
 	}
 	
