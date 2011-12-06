@@ -42,13 +42,14 @@ abstract class ConnectionTCPThread extends Thread {
 	public void run() {
 		System.out.println("Nouvelle connexion depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
 		
-		StringBuilder requete = new StringBuilder();
+		StringBuilder requete;
 		String reponse;
 		int c;
 		int etat;
 	    try {
 	    	while (marche) {
 	    		etat = 0;
+	    		requete = new StringBuilder();
 				while ((c = in.read()) != -1) {
 					//System.out.print(c+"~"+(char)c);
 					requete.append((char)c);
@@ -93,14 +94,14 @@ abstract class ConnectionTCPThread extends Thread {
 					return;
 				}
 				
-				System.out.println("Requete de " + socket.getInetAddress() + " : " + requete);
+				//System.out.println("Requete de " + socket.getInetAddress() + " : " + requete);
 				
 				reponse = traiterRequete(requete.toString());
 				if (reponse != null && marche) {
 					out.print(reponse);
 					out.flush();
 					
-					System.out.println("Envoyé !!");
+					//System.out.println("Envoyé !!");
 				}
 	    	}
 	    	
