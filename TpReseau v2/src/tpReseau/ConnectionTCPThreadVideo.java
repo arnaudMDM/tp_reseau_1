@@ -99,7 +99,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			} catch (NumberFormatException e) {
 				return null;
 			}
-			System.out.println("Debut");
 			if (imageId == -1) {
 			if (!envoyerImage()) {
 				return null;
@@ -131,18 +130,12 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			System.exit(1);
 		}
 		
-		int octet = 0;
-		int i = 0;
+		int octet;
 		byte[] donnees1 = ("0\r\n"+fichierImage.length()+"\r\n").getBytes();
 		byte[] donnees2 = new byte[(int)fichierImage.length()];
-		
+		System.out.println("Debut");
 		try {
-			octet = fis.read();
-			while (octet != -1) {
-				donnees2[i] = (byte)octet;
-				octet = fis.read();
-				i++;
-			}
+			octet = fis.read(donnees2);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
