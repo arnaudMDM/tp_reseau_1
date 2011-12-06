@@ -95,7 +95,6 @@ abstract class ConnectionTCPThread extends Thread {
 				}
 				
 				//System.out.println("Requete de " + socket.getInetAddress() + " : " + requete);
-				
 				reponse = traiterRequete(requete.toString());
 				if (reponse != null && marche) {
 					out.print(reponse);

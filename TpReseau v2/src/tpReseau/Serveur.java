@@ -163,9 +163,10 @@ public class Serveur {
 					case 6:
 						if (str.startsWith("IPS: ")) {
 							try {
-								ipsFlux = Double.parseDouble(str.substring(6));
+								ipsFlux = Double.parseDouble(str.substring(5));
+								System.out.println(ipsFlux);
 							} catch (NumberFormatException nfe) {
-								System.err.println("Numéro de port incorrect dans le fichier " + file.getAbsolutePath());
+								System.err.println("Numéro IPS incorrect dans le fichier " + file.getAbsolutePath());
 								erreur = true;
 							}
 							etat++;

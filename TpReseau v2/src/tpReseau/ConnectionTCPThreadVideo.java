@@ -16,7 +16,8 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 	
 	private String id;
 	private int etat;
-	private int dernierImageId;
+	private int derniereImageId;
+	private int indexImage;
 	
 	private Socket socketDonnees;
 	private OutputStream outDonnees;
@@ -27,13 +28,14 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 		super(socket);
 		this.id = id;
 		etat = ETAT_1;
-		dernierImageId = 1;
+		derniereImageId = lstImg.size();
+		indexImage = 0;
 		this.lstImg = lstImg;
 	}
 
 	@Override
 	protected String traiterRequete(String requete) {
-//		System.out.println("Requête : "+requete);
+	//System.out.println("Requête : "+requete);
 		
 		Scanner sc = new Scanner(requete);
 		String str;
@@ -97,15 +99,12 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			} catch (NumberFormatException e) {
 				return null;
 			}
-			
+			System.out.println("Debut");
 			if (imageId == -1) {
-				imageId = dernierImageId;
-			}
-			
-			if (!envoyerImage(imageId)) {
+			if (!envoyerImage()) {
 				return null;
 			}
-			dernierImageId = imageId;
+			}
 			
 			break;
 			
@@ -114,13 +113,13 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 		return null;
 	}
 	
-	private boolean envoyerImage(int imageId) {
+	private boolean envoyerImage() {
 		
 		FileInputStream fis = null;
 		File fichierImage = null;
-		//System.out.println("imageId = "+imageId);
-		if (imageId <= lstImg.size() && imageId > 0) {
-			fichierImage = lstImg.get(imageId-1);
+		//System.out.println("imageId = "+indexImage);
+		if (indexImage < derniereImageId) {
+			fichierImage = lstImg.get(indexImage);
 		}
 		else {
 			return false;
@@ -148,13 +147,13 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+		System.out.println("Fin");
 		try {
 			fis.close();
 			outDonnees.write(donnees1);
 			outDonnees.write(donnees2);
 			outDonnees.flush();
-			//System.out.println("Fichier "+fichierImage.getName() + " envoyé !");
+			indexImage++;
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
