@@ -1,5 +1,5 @@
 ID: 3
-Name: Flux2
+Name: Video1
 Type: JPEG
 Address: 127.0.0.1
 Port: 5023

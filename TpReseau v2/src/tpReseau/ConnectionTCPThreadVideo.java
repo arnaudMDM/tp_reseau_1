@@ -35,7 +35,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 
 	@Override
 	protected String traiterRequete(String requete) {
-	//System.out.println("Requête : "+requete);
 		
 		Scanner sc = new Scanner(requete);
 		String str;
@@ -47,7 +46,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 				return null;
 			String idRecu = str.substring(4).trim();
 			
-			//System.out.println("ID reçu : " + idRecu);
 	
 			if (!(str = sc.nextLine()).startsWith("LISTEN_PORT "))
 				return null;
@@ -58,7 +56,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 				return null;
 			}
 	
-			//System.out.println("clientPort reçu : " + clientPort);
 			
 			if (!sc.nextLine().equals(""))
 				return null;
@@ -116,7 +113,6 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 		
 		FileInputStream fis = null;
 		File fichierImage = null;
-		//System.out.println("imageId = "+indexImage);
 		if (indexImage < derniereImageId) {
 			fichierImage = lstImg.get(indexImage);
 		}
@@ -133,14 +129,12 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 		int octet;
 		byte[] donnees1 = ("0\r\n"+fichierImage.length()+"\r\n").getBytes();
 		byte[] donnees2 = new byte[(int)fichierImage.length()];
-		System.out.println("Debut");
 		try {
 			octet = fis.read(donnees2);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println("Fin");
 		try {
 			fis.close();
 			outDonnees.write(donnees1);

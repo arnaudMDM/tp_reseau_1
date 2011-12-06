@@ -51,7 +51,6 @@ abstract class ConnectionTCPThread extends Thread {
 	    		etat = 0;
 	    		requete = new StringBuilder();
 				while ((c = in.read()) != -1) {
-					//System.out.print(c+"~"+(char)c);
 					requete.append((char)c);
 					
 					switch (etat) {
@@ -94,13 +93,10 @@ abstract class ConnectionTCPThread extends Thread {
 					return;
 				}
 				
-				//System.out.println("Requete de " + socket.getInetAddress() + " : " + requete);
 				reponse = traiterRequete(requete.toString());
 				if (reponse != null && marche) {
 					out.print(reponse);
 					out.flush();
-					
-					//System.out.println("Envoyé !!");
 				}
 	    	}
 	    	

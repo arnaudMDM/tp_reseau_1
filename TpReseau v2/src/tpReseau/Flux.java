@@ -55,7 +55,7 @@ public class Flux {
 	}
 	
 	void demarrer() {
-		System.out.println(lstImg);
+		//System.out.println(lstImg);
 		new ConnectionTCPVideo(port, id, lstImg).start();
 	}
 	
