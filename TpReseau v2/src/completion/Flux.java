@@ -16,7 +16,6 @@ public class Flux {
 		try {
 			outFile = new FileWriter(nomFichier);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String entete;
@@ -24,29 +23,25 @@ public class Flux {
 		try {
 			outFile.append(entete);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		for (File file : tabFile) {
 			try {
 				outFile.append(nomDossier + "\\" + file.getName() + "\r\n");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		try {
 			outFile.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Fichier "+nomFichier+" cré");
+		System.out.println("Fichier "+nomFichier+" créé");
 
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		if (args.length > 1){
 			new Flux(args[0], args[1]);
 		}
