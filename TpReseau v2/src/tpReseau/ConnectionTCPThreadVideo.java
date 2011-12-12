@@ -13,18 +13,19 @@ import java.util.Scanner;
 public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 
 	private static final int ETAT_1 = 0, ETAT_2 = 1;
-	
+
 	private String id;
 	private int etat;
 	private int derniereImageId;
 	private int indexImage;
-	
+
 	private Socket socketDonnees;
 	private OutputStream outDonnees;
-	
+
 	private ArrayList<File> lstImg;
 
-	public ConnectionTCPThreadVideo(Socket socket, String id, ArrayList<File> lstImg) throws IOException {
+	public ConnectionTCPThreadVideo(Socket socket, String id,
+			ArrayList<File> lstImg) throws IOException {
 		super(socket);
 		this.id = id;
 		etat = ETAT_1;
@@ -35,18 +36,17 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 
 	@Override
 	protected String traiterRequete(String requete) {
-		
+
 		Scanner sc = new Scanner(requete);
 		String str;
-		
+
 		switch (etat) {
-		case ETAT_1 :
-			
+		case ETAT_1:
+
 			if (!(str = sc.nextLine()).startsWith("GET "))
 				return null;
 			String idRecu = str.substring(4).trim();
-			
-	
+
 			if (!(str = sc.nextLine()).startsWith("LISTEN_PORT "))
 				return null;
 			int clientPort = -1;
@@ -55,41 +55,40 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			} catch (NumberFormatException e) {
 				return null;
 			}
-	
-			
+
 			if (!sc.nextLine().equals(""))
 				return null;
-			
+
 			if (!idRecu.equals(id))
 				return null;
-	
+
 			// ok, on ouvre la connection de données
-			
+
 			try {
-				socketDonnees = new Socket(getSocket().getInetAddress(), clientPort);
+				socketDonnees = new Socket(getSocket().getInetAddress(),
+						clientPort);
 				outDonnees = socketDonnees.getOutputStream();
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
-			
+
 			etat = ETAT_2;
 			break;
-		case ETAT_2 :
+		case ETAT_2:
 			str = sc.nextLine();
-			
-			if (str.startsWith("END")){
+
+			if (str.startsWith("END")) {
 				terminer();
 				break;
 			}
-			
+
 			if (!str.startsWith("GET "))
 				return null;
-			
+
 			if (!sc.nextLine().equals(""))
 				return null;
-			
-			
+
 			int imageId;
 			try {
 				imageId = Integer.parseInt(str.substring(4).trim());
@@ -97,40 +96,39 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 				return null;
 			}
 			if (imageId == -1) {
-			if (!envoyerImage()) {
-				return null;
+				if (!envoyerImage()) {
+					return null;
+				}
 			}
-			}
-			
+
 			break;
-			
+
 		}
 
 		return null;
 	}
-	
+
 	private boolean envoyerImage() {
-		
+
 		FileInputStream fis = null;
 		File fichierImage = null;
 		if (indexImage < derniereImageId) {
 			fichierImage = lstImg.get(indexImage);
-		}
-		else {
+		} else {
 			return false;
 		}
 		try {
 			fis = new FileInputStream(fichierImage);
 		} catch (FileNotFoundException e1) {
-			System.err.println("Fichier "+fichierImage.getAbsolutePath()+" introuvable");
+			System.err.println("Fichier " + fichierImage.getAbsolutePath()
+					+ " introuvable");
 			System.exit(1);
 		}
-		
-		int octet;
-		byte[] donnees1 = ("0\r\n"+fichierImage.length()+"\r\n").getBytes();
-		byte[] donnees2 = new byte[(int)fichierImage.length()];
+
+		byte[] donnees1 = ("0\r\n" + fichierImage.length() + "\r\n").getBytes();
+		byte[] donnees2 = new byte[(int) fichierImage.length()];
 		try {
-			octet = fis.read(donnees2);
+			fis.read(donnees2);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -145,10 +143,10 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		return true;
 	}
-	
+
 	protected void terminer() {
 		super.terminer();
 		try {

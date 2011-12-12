@@ -89,8 +89,7 @@ abstract class ConnectionTCPThread extends Thread {
 						break;	
 				}
 				if (c == -1) {
-					System.err.println("Client déconnecté depuis " + socket.getInetAddress());
-					return;
+					throw new IOException();
 				}
 				
 				reponse = traiterRequete(requete.toString());
@@ -101,7 +100,9 @@ abstract class ConnectionTCPThread extends Thread {
 	    	}
 	    	
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.err.println("Client déconnecté depuis " + socket.getInetAddress());
+			terminer();
 		}
 	}
 	
