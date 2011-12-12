@@ -1,5 +1,9 @@
 package tpReseau;
 
-public class ConnectionUDP extends Thread {
+public class ConnectionUDP {
 	
+	public static void main(String[] args) {
+		
+		new ConnectionUDP();
+	}
 }
