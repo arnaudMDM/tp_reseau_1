@@ -17,7 +17,7 @@ abstract class ConnectionTCPThread extends Thread {
 	private PrintWriter out;
 	private BufferedReader in;
 	
-	private Ihm ihm;
+	protected Ihm ihm;
 	
 	private boolean marche;
 	

@@ -1,6 +1,7 @@
 package tpReseau;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -18,8 +19,10 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 	private boolean envoiEnCours;
 	private int imgCourante;
 	private int fragmentCourant;
+	private int nbFragments;
 	private InetAddress adresseClient;
 	private int tailleFragment;
+	private byte[] tabImg;
 	
 	private DatagramSocket udpSocketEnvoi;
 	private DatagramPacket packetEnvoi;
@@ -31,6 +34,8 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 		this.lstImg = lstImg;
 		
 		envoiEnCours = false;
+		
+		nbFragments = -1;
 	}
 
 	@Override
@@ -58,6 +63,9 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 				}
 			}
 			else {
+				if (!idRecu.equals(id))
+					return;
+				
 				if (!str.startsWith("LISTEN_PORT "))
 					return;
 				int portRecu;
@@ -84,14 +92,14 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 				this.adresseClient = adresseExpediteur;
 				this.tailleFragment = tailleFragmentRecue;
 				
-				imgCourante = 0;
+				imgCourante = -1;
 				fragmentCourant = 0;
 				try {
 					udpSocketEnvoi = new DatagramSocket();
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
-				packetEnvoi = new DatagramPacket(null, 0, adresseClient, portRecu);
+				packetEnvoi = new DatagramPacket(new byte[0], 0, adresseClient, portRecu);
 				envoiEnCours = true;
 			}
 		} catch (NoSuchElementException nsee) {
@@ -100,17 +108,43 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 	}
 	
 	private void envoyerImage(String id) {
+		
+		if (fragmentCourant >= nbFragments) {
+			fragmentCourant = 0;
+			imgCourante = (imgCourante+1)%lstImg.size();
+			nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment;
+			try {
+				tabImg = Flux.lireFichier(lstImg.get(imgCourante));
+			} catch (FileNotFoundException e) {
+				System.err.println("Fichier " + lstImg.get(imgCourante).getAbsolutePath()
+						+ " introuvable");
+				System.exit(1);
+			}
+		}
+		
+		int tailleFragmentCourant;
+		if (fragmentCourant+1 < nbFragments) {
+			tailleFragmentCourant = tailleFragment;
+		}
+		else {
+			tailleFragmentCourant = (int)lstImg.get(imgCourante).length()%tailleFragment;
+		}
+		
 		String enTeteStr = Integer.toString(imgCourante) + "\r\n"
 				+ lstImg.get(imgCourante).length() + "\r\n" + fragmentCourant
-				+ "\r\n" + tailleFragment + "\r\n";
-		byte[] enTete = enTeteStr.getBytes();
+				+ "\r\n" + tailleFragmentCourant + "\r\n";
 		
-		byte[] buffer = new byte[enTete.length + tailleFragment];
+		byte[] enTete = enTeteStr.getBytes();
+		byte[] buffer = new byte[enTete.length + tailleFragmentCourant];
+		System.arraycopy(enTete, 0, buffer, 0, enTete.length);
+		System.arraycopy(tabImg, tailleFragment*fragmentCourant, buffer, enTete.length, tailleFragmentCourant);
+		
 		packetEnvoi.setData(buffer, 0, buffer.length);
 		try {
 			udpSocketEnvoi.send(packetEnvoi);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 }

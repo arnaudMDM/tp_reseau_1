@@ -1,6 +1,9 @@
 package tpReseau;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Flux {
@@ -68,4 +71,17 @@ public class Flux {
 		return true;
 	}
 	
+	public static byte[] lireFichier(File fichier) throws FileNotFoundException {
+		FileInputStream fis = new FileInputStream(fichier);
+
+		byte[] donnees = new byte[(int) fichier.length()];
+		try {
+			fis.read(donnees);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		return donnees;
+	}
 }

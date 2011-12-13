@@ -1,9 +1,7 @@
 package tpReseau;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -110,31 +108,24 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 
 	private boolean envoyerImage() {
 
-		FileInputStream fis = null;
 		File fichierImage = null;
 		if (indexImage < derniereImageId) {
 			fichierImage = lstImg.get(indexImage);
 		} else {
 			return false;
 		}
+
+		byte[] donnees1 = ("0\r\n" + fichierImage.length() + "\r\n").getBytes();
+		byte[] donnees2 = null;
 		try {
-			fis = new FileInputStream(fichierImage);
+			donnees2 = Flux.lireFichier(fichierImage);
 		} catch (FileNotFoundException e1) {
-			System.err.println("Fichier " + fichierImage.getAbsolutePath()
+			ihm.afficherErreur("Fichier " + fichierImage.getAbsolutePath()
 					+ " introuvable");
 			System.exit(1);
 		}
-
-		byte[] donnees1 = ("0\r\n" + fichierImage.length() + "\r\n").getBytes();
-		byte[] donnees2 = new byte[(int) fichierImage.length()];
+		
 		try {
-			fis.read(donnees2);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		try {
-			fis.close();
 			outDonnees.write(donnees1);
 			outDonnees.write(donnees2);
 			outDonnees.flush();

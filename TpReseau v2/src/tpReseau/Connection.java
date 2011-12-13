@@ -6,6 +6,7 @@ public abstract class Connection extends Thread {
 	
 	protected int portEcoute;
 	protected boolean marche;
+	
 	protected Ihm ihm;
 	
 	public Connection(int portEcoute, Ihm ihm) {
