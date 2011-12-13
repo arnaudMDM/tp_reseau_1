@@ -1,9 +1,9 @@
 package tpReseau;
 
+import ihmConsole.IhmConsole;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,19 +12,24 @@ public class Serveur {
 	private static final String ADRESSE_CATALOGUE_DEFAUT = "127.0.0.1";
 	private static final int PORT_CATALOGUE_DEFAUT = 5020;
 	
+	private Ihm ihm;
 	private ArrayList<Flux> lstFlux;
 
-	public Serveur(String adresseCatalogue, int portCatalogue) {
+	public Serveur(String adresseCatalogue, int portCatalogue, Ihm ihm) {
 		
 		lstFlux = new ArrayList<Flux>();
 		
 		String catalogue = creerCatalogue(adresseCatalogue, portCatalogue);
+		
+		this.ihm = ihm;
 
-		ConnectionTCPCatalogue connectionCatalogue = new ConnectionTCPCatalogue(portCatalogue, catalogue);
+		ConnectionTCPCatalogue connectionCatalogue = new ConnectionTCPCatalogue(portCatalogue, catalogue, ihm);
 		connectionCatalogue.start();
 		
 		for (Flux flux : lstFlux) {
-			flux.demarrer();
+			if (!flux.demarrer(ihm)) {
+				ihm.afficherErreur("Protocole "+flux.getProtocole()+" non supporté");
+			}
 		}
 	}
 
@@ -85,7 +90,7 @@ public class Serveur {
 							idFlux = str.substring(4);
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -95,7 +100,7 @@ public class Serveur {
 							nomFlux = str.substring(6);
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -107,12 +112,12 @@ public class Serveur {
 								typeFlux = "JPEG";
 							}
 							if (!typeFlux.equals("BMP") && !typeFlux.equals("JPEG")) {
-								System.err.println("Type de flux incorrect dans le fichier " + file.getAbsolutePath());
+								ihm.afficherErreur("Type de flux incorrect dans le fichier " + file.getAbsolutePath());
 								erreur = true;
 							}
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -122,7 +127,7 @@ public class Serveur {
 							adresseFlux = str.substring(9);
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -132,12 +137,12 @@ public class Serveur {
 							try {
 								portFlux = Integer.parseInt(str.substring(6));
 							} catch (NumberFormatException nfe) {
-								System.err.println("Numéro de port incorrect dans le fichier " + file.getAbsolutePath());
+								ihm.afficherErreur("Numéro de port incorrect dans le fichier " + file.getAbsolutePath());
 								erreur = true;
 							}
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -150,12 +155,12 @@ public class Serveur {
 									&& !protocoleFlux.equals("UDP_PULL")
 									&& !protocoleFlux.equals("UDP_PUSH")
 									&& !protocoleFlux.equals("MCAST_PUSH")) {
-								System.err.println("Protocole incorrect dans le fichier " + file.getAbsolutePath());
+								ihm.afficherErreur("Protocole incorrect dans le fichier " + file.getAbsolutePath());
 								erreur = true;
 							}
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						etat++;
@@ -164,15 +169,14 @@ public class Serveur {
 						if (str.startsWith("IPS: ")) {
 							try {
 								ipsFlux = Double.parseDouble(str.substring(5));
-								//System.out.println(ipsFlux);
 							} catch (NumberFormatException nfe) {
-								System.err.println("Numéro IPS incorrect dans le fichier " + file.getAbsolutePath());
+								ihm.afficherErreur("Numéro IPS incorrect dans le fichier " + file.getAbsolutePath());
 								erreur = true;
 							}
 							etat++;
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " mal formé");
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
 							erreur = true;
 						}
 						break;
@@ -181,7 +185,7 @@ public class Serveur {
 							lstImgFlux.add(fileFlux);
 						}
 						else {
-							System.err.println("Fichier " + file.getAbsolutePath() + " indique une image inexistante : " + str);
+							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " indique une image inexistante : " + str);
 							erreur = true;
 						}
 					}
@@ -207,6 +211,8 @@ public class Serveur {
 			portCatalogue = PORT_CATALOGUE_DEFAUT;
 		}
 		
-		new Serveur(adresseCatalogue, portCatalogue);
+		Ihm ihm = new IhmConsole();
+		
+		new Serveur(adresseCatalogue, portCatalogue, ihm);
 	}
 }

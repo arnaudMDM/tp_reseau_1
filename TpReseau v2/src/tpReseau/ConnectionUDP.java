@@ -1,29 +1,44 @@
 package tpReseau;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 
-public class ConnectionUDP {
+public abstract class ConnectionUDP extends Connection {
 	
-	public ConnectionUDP() {
-		int port;
-		InetAddress address;
-		DatagramSocket socket = null;
-		DatagramPacket packet;
-		byte[] buf = new byte[256];
+	private static final int TAILLE_BUFFER = 256;
+	
+	private DatagramSocket udpSocket;
+	private DatagramPacket packet;
+	
+	public ConnectionUDP(int portEcoute, Ihm ihm) {
 		
-		try {
-			socket = new DatagramSocket();
-			packet = new DatagramPacket();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
+		super(portEcoute, ihm);
+		
+		udpSocket = null;
+		
+		byte[] buffer = new byte[TAILLE_BUFFER];
+		packet = new DatagramPacket(buffer, buffer.length);
 	}
 	
-	public static void main(String[] args) {
-		
-		new ConnectionUDP();
+	@Override
+	protected void ouvrirSocket() throws IOException {
+		udpSocket = new DatagramSocket(portEcoute);
 	}
+	
+	@Override
+	protected void ecoute() throws IOException {
+		udpSocket.receive(packet);  // mise en écoute
+		String requete = new String (packet.getData(), 0, packet.getLength());
+		
+		traiterRequete(requete, packet.getAddress());
+	}
+	
+	@Override
+	protected void terminer() throws IOException {
+		udpSocket.close();
+	}
+	
+	protected abstract void traiterRequete(String requete, InetAddress adresseExpediteur);
 }

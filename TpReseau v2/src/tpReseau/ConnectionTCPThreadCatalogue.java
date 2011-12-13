@@ -10,8 +10,8 @@ public class ConnectionTCPThreadCatalogue extends ConnectionTCPThread {
 	
 	private String catalogue;
 	
-	public ConnectionTCPThreadCatalogue(Socket socket, String catalogue) throws IOException {
-		super(socket);
+	public ConnectionTCPThreadCatalogue(Socket socket, String catalogue, Ihm ihm) throws IOException {
+		super(socket, ihm);
 		this.catalogue = catalogue;
 	}
 

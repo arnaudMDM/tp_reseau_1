@@ -25,8 +25,8 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 	private ArrayList<File> lstImg;
 
 	public ConnectionTCPThreadVideo(Socket socket, String id,
-			ArrayList<File> lstImg) throws IOException {
-		super(socket);
+			ArrayList<File> lstImg, Ihm ihm) throws IOException {
+		super(socket, ihm);
 		this.id = id;
 		etat = ETAT_1;
 		derniereImageId = lstImg.size();

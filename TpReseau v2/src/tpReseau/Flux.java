@@ -54,9 +54,18 @@ public class Flux {
 		return ips;
 	}
 	
-	void demarrer() {
-		//System.out.println(lstImg);
-		new ConnectionTCPVideo(port, id, lstImg).start();
+	boolean demarrer(Ihm ihm) {
+		if (protocole.equals("TCP_PULL")) {
+			new ConnectionTCPVideo(port, id, lstImg, ihm).start();
+		}
+		else if (protocole.equals("UDP_PULL")) {
+			new ConnectionUDPVideo(port, id, lstImg, ihm).start();
+		}
+		else {
+			return false;
+		}
+		
+		return true;
 	}
 	
 }

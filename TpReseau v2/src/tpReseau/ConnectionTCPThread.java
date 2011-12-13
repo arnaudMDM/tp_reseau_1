@@ -10,15 +10,14 @@ import java.net.Socket;
  * Une instance de cette classe est créée pour chaque client et ces instances fonctionnent en parallèle.<br />
  * <br />
  * Il s'agit d'une classe interne afin que les membres de la classe globale puissent lui être accessibles.
- * 
- * @author INFO2 2010-2011, groupe de PT n°9<br />
- * Contributeur principal : Robin Gicquel
  */
 abstract class ConnectionTCPThread extends Thread {
 	
 	private Socket socket;
 	private PrintWriter out;
 	private BufferedReader in;
+	
+	private Ihm ihm;
 	
 	private boolean marche;
 	
@@ -27,10 +26,12 @@ abstract class ConnectionTCPThread extends Thread {
 	 * @param socket objet socket relatif au client
 	 * @throws IOException en cas d'erreur d'entrée-sortie, afin qu'elle soit gérées par la classe appelante
 	 */
-	public ConnectionTCPThread(Socket socket) throws IOException {
+	public ConnectionTCPThread(Socket socket, Ihm ihm) throws IOException {
 		this.socket = socket;
 		out = new PrintWriter(socket.getOutputStream(), false);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		this.ihm = ihm;
 		
 		marche = true;
 	}
@@ -40,7 +41,7 @@ abstract class ConnectionTCPThread extends Thread {
 	}
 	
 	public void run() {
-		System.out.println("Nouvelle connexion depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
+		ihm.afficher("Nouvelle connexion depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
 		
 		StringBuilder requete;
 		String reponse;
@@ -101,7 +102,7 @@ abstract class ConnectionTCPThread extends Thread {
 	    	
 		} catch (IOException e) {
 			//e.printStackTrace();
-			System.err.println("Client déconnecté depuis " + socket.getInetAddress());
+			ihm.clientDeconnecte(socket.getInetAddress().toString());
 			terminer();
 		}
 	}

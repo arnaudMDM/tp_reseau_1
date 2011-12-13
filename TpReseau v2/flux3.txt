@@ -1,0 +1,8 @@
+ID: 4444
+Name: eclairs
+Type: JPEG
+Address: 127.0.0.1
+Port: 5024
+Protocol: UDP_PULL
+IPS: 0.20
+eclairs.jpg
