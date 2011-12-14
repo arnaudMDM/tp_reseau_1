@@ -16,6 +16,9 @@ public class ContexteUDP {
 	private DatagramSocket socketEnvoi;
 	private DatagramPacket packetEnvoi;
 	
+	private boolean enCours;
+	private long tsDerniereRequete;
+	
 	public ContexteUDP(InetAddress adresseClient, int portClient) {
 		this.adresseClient = adresseClient;
 		this.portClient = portClient;
@@ -27,6 +30,8 @@ public class ContexteUDP {
 		}
 		
 		packetEnvoi = null;
+		enCours = false;
+		tsDerniereRequete = System.currentTimeMillis();
 	}
 
 	public InetAddress getAdresseClient() {
@@ -52,6 +57,14 @@ public class ContexteUDP {
 	public DatagramPacket getPacketEnvoi() {
 		return packetEnvoi;
 	}
+	
+	public boolean isEnCours() {
+		return enCours;
+	}
+	
+	public long getTsDerniereRequete() {
+		return tsDerniereRequete;
+	}
 
 	public void setImgCourante(int imgCourante) {
 		this.imgCourante = imgCourante;
@@ -59,6 +72,14 @@ public class ContexteUDP {
 
 	public void setTailleFragment(int tailleFragment) {
 		this.tailleFragment = tailleFragment;
+	}
+	
+	public void setEncours(boolean enCours) {
+		this.enCours = enCours;
+	}
+	
+	public void setTsDernierEnvoi(long tsDernierEnvoi) {
+		this.tsDerniereRequete = tsDernierEnvoi;
 	}
 	
 	public void creerPacketEnvoi(int portDonnees) {

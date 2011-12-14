@@ -3,7 +3,6 @@ package tpReseau;
 import ihm.Ihm;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 
 public abstract class Connection extends Thread {
 	
@@ -25,8 +24,6 @@ public abstract class Connection extends Thread {
 	
 	abstract void terminer() throws IOException;
 	
-	abstract void timeoutDepasse();
-	
 	public void run() {
 		try {
             ouvrirSocket();
@@ -39,8 +36,6 @@ public abstract class Connection extends Thread {
         while (marche) {
 			try {
 				ecoute();
-			} catch (SocketTimeoutException e) {
-				timeoutDepasse();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

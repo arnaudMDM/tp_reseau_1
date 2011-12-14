@@ -12,7 +12,6 @@ public abstract class ConnectionUDP extends Connection {
 	
 	private static final int TAILLE_BUFFER = 256;
 	
-	protected int timeout;
 	private DatagramSocket udpSocket;
 	private DatagramPacket packet;
 	
@@ -20,7 +19,6 @@ public abstract class ConnectionUDP extends Connection {
 		
 		super(portEcoute, ihm);
 		
-		timeout = -1;
 		udpSocket = null;
 		
 		byte[] buffer = new byte[TAILLE_BUFFER];
@@ -30,9 +28,6 @@ public abstract class ConnectionUDP extends Connection {
 	@Override
 	protected void ouvrirSocket() throws IOException {
 		udpSocket = new DatagramSocket(portEcoute);
-		if (timeout > 0) {
-			udpSocket.setSoTimeout(timeout);
-		}
 	}
 	
 	@Override

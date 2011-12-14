@@ -38,11 +38,6 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 		lstContexte.add(contexte);
 		return contexte;
 	}
-	
-	@Override
-	void timeoutDepasse() {
-		// vide
-	}
 
 	@Override
 	protected void traiterRequete(String requete, InetAddress adresseExpediteur, int portExpediteur) {

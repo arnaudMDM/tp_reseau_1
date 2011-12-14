@@ -36,11 +36,6 @@ public abstract class ConnectionTCP extends Connection {
 	void terminer() throws IOException {
 		serverSocket.close();
 	}
-	
-	@Override
-	void timeoutDepasse() {
-		// vide
-	}
 
 	abstract Thread creerThreadClient(Socket socket)
 			throws IOException;
