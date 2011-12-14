@@ -1,6 +1,7 @@
 package tpReseau;
 
-import ihmConsole.IhmConsole;
+import ihm.Ihm;
+import ihm.IhmConsole;
 
 import java.io.File;
 import java.io.FileNotFoundException;

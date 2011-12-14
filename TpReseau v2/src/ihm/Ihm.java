@@ -1,4 +1,4 @@
-package tpReseau;
+package ihm;
 
 public interface Ihm {
 

@@ -1,6 +1,5 @@
-package ihmConsole;
+package ihm;
 
-import tpReseau.Ihm;
 
 public class IhmConsole implements Ihm {
 	

@@ -1,5 +1,5 @@
 ID: 4444
-Name: eclairs
+Name: eclairs2
 Type: JPEG
 Address: 127.0.0.1
 Port: 5024

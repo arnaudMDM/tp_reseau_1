@@ -1,5 +1,7 @@
 package tpReseau;
 
+import ihm.Ihm;
+
 import java.io.IOException;
 import java.net.Socket;
 

@@ -1,5 +1,7 @@
 package tpReseau;
 
+import ihm.Ihm;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;

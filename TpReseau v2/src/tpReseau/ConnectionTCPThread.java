@@ -1,5 +1,7 @@
 package tpReseau;
 
+import ihm.Ihm;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

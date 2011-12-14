@@ -1,5 +1,7 @@
 package tpReseau;
 
+import ihm.Ihm;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
