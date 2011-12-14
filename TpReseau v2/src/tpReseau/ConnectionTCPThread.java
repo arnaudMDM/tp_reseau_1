@@ -41,7 +41,7 @@ abstract class ConnectionTCPThread extends Thread {
 	}
 	
 	public void run() {
-		ihm.afficher("Nouvelle connexion depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
+		ihm.afficher("Nouvelle connection depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
 		
 		StringBuilder requete;
 		String reponse;
@@ -105,6 +105,8 @@ abstract class ConnectionTCPThread extends Thread {
 			ihm.clientDeconnecte(socket.getInetAddress().toString());
 			terminer();
 		}
+	    
+	    ihm.afficher("Fin de la connection depuis " + socket.getInetAddress() + " sur le port " + socket.getLocalPort());
 	}
 	
 	protected abstract String traiterRequete(String requete);

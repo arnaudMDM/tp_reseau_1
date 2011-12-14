@@ -4,28 +4,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ConnectionUDPVideo extends ConnectionUDP {
 	
-	private String id;
-	private ArrayList<File> lstImg;
+	protected String id;
+	private List<File> lstImg;
 	
-	private boolean envoiEnCours;
-	private int imgCourante;
-	private int fragmentCourant;
-	private int nbFragments;
-	private InetAddress adresseClient;
-	private int tailleFragment;
-	private byte[] tabImg;
-	
-	private DatagramSocket udpSocketEnvoi;
-	private DatagramPacket packetEnvoi;
+	protected List<ContexteUDP> lstContexte;
 	
 	public ConnectionUDPVideo(int port, String id, ArrayList<File> lstImg, Ihm ihm) {
 		super(port, ihm);
@@ -33,20 +23,39 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 		this.id = id;
 		this.lstImg = lstImg;
 		
-		envoiEnCours = false;
+		lstContexte = new ArrayList<ContexteUDP>();
+	}
+	
+	protected ContexteUDP chercherContexte(InetAddress adresse, int port) {
+		for (ContexteUDP c : lstContexte) {
+			if (c.getAdresseClient().equals(adresse) && c.getPortClient() == port)
+				return c;
+		}
 		
-		nbFragments = -1;
+		ContexteUDP contexte = new ContexteUDP(adresse, port);
+		lstContexte.add(contexte);
+		return contexte;
+	}
+	
+	@Override
+	void timeoutDepasse() {
+		// vide
 	}
 
 	@Override
-	protected void traiterRequete(String requete, InetAddress adresseExpediteur) {
+	protected void traiterRequete(String requete, InetAddress adresseExpediteur, int portExpediteur) {
+		
+		//System.out.println("Requete : "+requete);
+		
+		ContexteUDP contexte = chercherContexte(adresseExpediteur, portExpediteur);
+		
 		Scanner sc = new Scanner(requete);
 		
 		try {
 			String str = sc.nextLine();
 			
 			if (str.startsWith("END")) {
-				envoiEnCours = false;
+				lstContexte.remove(contexte);
 				return;
 			}
 			
@@ -55,10 +64,9 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 			String idRecu = str.substring(4);
 			str = sc.nextLine();
 			if (str.equals("")) {
-				if (envoiEnCours && adresseExpediteur.equals(adresseClient)) {
-					envoyerImage(idRecu);
-				}
-				else {
+				try {
+					envoyerImage(contexte, Integer.parseInt(idRecu));
+				} catch (NumberFormatException e) {
 					return;
 				}
 			}
@@ -75,6 +83,8 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 					return;
 				}
 				
+				contexte.creerPacketEnvoi(portRecu);
+				
 				str = sc.nextLine();
 				if (!str.startsWith("FRAGMENT_SIZE "))
 					return;
@@ -89,62 +99,67 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 				if (!str.equals(""))
 					return;
 				
-				this.adresseClient = adresseExpediteur;
-				this.tailleFragment = tailleFragmentRecue;
-				
-				imgCourante = -1;
-				fragmentCourant = 0;
-				try {
-					udpSocketEnvoi = new DatagramSocket();
-				} catch (SocketException e) {
-					e.printStackTrace();
-				}
-				packetEnvoi = new DatagramPacket(new byte[0], 0, adresseClient, portRecu);
-				envoiEnCours = true;
+				contexte.setTailleFragment(tailleFragmentRecue);
+				contexte.setImgCourante(-1);
 			}
 		} catch (NoSuchElementException nsee) {
 			return;
 		}
 	}
 	
-	private void envoyerImage(String id) {
+	protected void envoyerImage(ContexteUDP contexte, int id) {
 		
-		if (fragmentCourant >= nbFragments) {
-			fragmentCourant = 0;
-			imgCourante = (imgCourante+1)%lstImg.size();
-			nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment;
-			try {
-				tabImg = Flux.lireFichier(lstImg.get(imgCourante));
-			} catch (FileNotFoundException e) {
-				System.err.println("Fichier " + lstImg.get(imgCourante).getAbsolutePath()
-						+ " introuvable");
-				System.exit(1);
-			}
+		int imgCourante = contexte.getImgCourante();
+		int tailleFragment = contexte.getTailleFragment();
+		
+		if (id == -1) {
+			contexte.setImgCourante((imgCourante+1)%lstImg.size());
+		}
+		else {
+			imgCourante = id;
+		}
+		
+		int fragmentCourant = 0;
+		imgCourante = (imgCourante+1)%lstImg.size();
+		int nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment+1;
+		byte[] tabImg = null;
+		try {
+			tabImg = Flux.lireFichier(lstImg.get(imgCourante));
+		} catch (FileNotFoundException e) {
+			System.err.println("Fichier " + lstImg.get(imgCourante).getAbsolutePath()
+					+ " introuvable");
+			System.exit(1);
 		}
 		
 		int tailleFragmentCourant;
-		if (fragmentCourant+1 < nbFragments) {
-			tailleFragmentCourant = tailleFragment;
+		
+		while (fragmentCourant < nbFragments) {
+			if (fragmentCourant+1 < nbFragments) {
+				tailleFragmentCourant = tailleFragment;
+			}
+			else {
+				tailleFragmentCourant = (int)lstImg.get(imgCourante).length()%tailleFragment;
+			}
+			
+			String enTeteStr = Integer.toString(imgCourante) + "\r\n"
+					+ lstImg.get(imgCourante).length() + "\r\n" + tailleFragment*fragmentCourant
+					+ "\r\n" + tailleFragmentCourant + "\r\n";
+			
+			byte[] enTete = enTeteStr.getBytes();
+			byte[] buffer = new byte[enTete.length + tailleFragmentCourant];
+			System.arraycopy(enTete, 0, buffer, 0, enTete.length);
+			System.arraycopy(tabImg, tailleFragment*fragmentCourant, buffer, enTete.length, tailleFragmentCourant);
+			
+			
+			DatagramPacket packetEnvoi = contexte.getPacketEnvoi();
+			packetEnvoi.setData(buffer, 0, buffer.length);
+			try {
+				contexte.getSocketEnvoi().send(packetEnvoi);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			fragmentCourant++;
 		}
-		else {
-			tailleFragmentCourant = (int)lstImg.get(imgCourante).length()%tailleFragment;
-		}
-		
-		String enTeteStr = Integer.toString(imgCourante) + "\r\n"
-				+ lstImg.get(imgCourante).length() + "\r\n" + fragmentCourant
-				+ "\r\n" + tailleFragmentCourant + "\r\n";
-		
-		byte[] enTete = enTeteStr.getBytes();
-		byte[] buffer = new byte[enTete.length + tailleFragmentCourant];
-		System.arraycopy(enTete, 0, buffer, 0, enTete.length);
-		System.arraycopy(tabImg, tailleFragment*fragmentCourant, buffer, enTete.length, tailleFragmentCourant);
-		
-		packetEnvoi.setData(buffer, 0, buffer.length);
-		try {
-			udpSocketEnvoi.send(packetEnvoi);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 	}
 }

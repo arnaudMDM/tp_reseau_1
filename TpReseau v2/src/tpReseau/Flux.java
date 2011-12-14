@@ -59,10 +59,16 @@ public class Flux {
 	
 	boolean demarrer(Ihm ihm) {
 		if (protocole.equals("TCP_PULL")) {
-			new ConnectionTCPVideo(port, id, lstImg, ihm).start();
+			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PULL, port, id, lstImg, ihm).start();
+		}
+		else if (protocole.equals("TCP_PUSH")) {
+			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PUSH, port, id, lstImg, ihm).start();
 		}
 		else if (protocole.equals("UDP_PULL")) {
 			new ConnectionUDPVideo(port, id, lstImg, ihm).start();
+		}
+		else if (protocole.equals("UDP_PUSH")) {
+			new ConnectionUDPVideoPush(port, id, lstImg, ihm).start();
 		}
 		else {
 			return false;

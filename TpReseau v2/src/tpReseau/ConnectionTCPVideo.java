@@ -7,13 +7,18 @@ import java.util.ArrayList;
 
 public class ConnectionTCPVideo extends ConnectionTCP {
 	
+	public final static int TYPE_PULL = 1, TYPE_PUSH = 2;
+	
+	private int type;
+	
 	private String id;
 	private ArrayList<File> lstImg;
 	
 	private Ihm ihm;
 	
-	public ConnectionTCPVideo(int portEcoute, String id, ArrayList<File> lstImg, Ihm ihm) {
+	public ConnectionTCPVideo(int type, int portEcoute, String id, ArrayList<File> lstImg, Ihm ihm) {
 		super(portEcoute, ihm);
+		this.type = type;
 		this.id = id;
 		this.lstImg = lstImg;
 		
@@ -21,6 +26,6 @@ public class ConnectionTCPVideo extends ConnectionTCP {
 	}
 	
 	Thread creerThreadClient(Socket socket) throws IOException {
-		return new ConnectionTCPThreadVideo(socket, id, lstImg, ihm);
+		return new ConnectionTCPThreadVideo(type, socket, id, lstImg, ihm);
 	}
 }

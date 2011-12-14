@@ -8,28 +8,32 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
+public class ConnectionTCPThreadVideo extends ConnectionTCPThread implements EnvoiImage {
 
-	private static final int ETAT_1 = 0, ETAT_2 = 1;
+	private static final int ETAT_1 = 0, ETAT_2_PULL = 1, ETAT_2_PUSH = 2, ETAT_3_PUSH = 3;
 
+	private int type;
+	
 	private String id;
 	private int etat;
-	private int derniereImageId;
 	private int indexImage;
 
 	private Socket socketDonnees;
 	private OutputStream outDonnees;
+	
+	private ThreadEnvoiPush envoiPush;
 
 	private ArrayList<File> lstImg;
 
-	public ConnectionTCPThreadVideo(Socket socket, String id,
+	public ConnectionTCPThreadVideo(int type, Socket socket, String id,
 			ArrayList<File> lstImg, Ihm ihm) throws IOException {
 		super(socket, ihm);
+		this.type = type;
 		this.id = id;
 		etat = ETAT_1;
-		derniereImageId = lstImg.size();
 		indexImage = 0;
 		this.lstImg = lstImg;
+		envoiPush = null;
 	}
 
 	@Override
@@ -70,17 +74,21 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 				e.printStackTrace();
 				System.exit(1);
 			}
-
-			etat = ETAT_2;
+			
+			if (type == ConnectionTCPVideo.TYPE_PULL)
+				etat = ETAT_2_PULL;
+			else if (type == ConnectionTCPVideo.TYPE_PUSH)
+				etat = ETAT_2_PUSH;
+			
 			break;
-		case ETAT_2:
+		case ETAT_2_PULL:
 			str = sc.nextLine();
 
 			if (str.startsWith("END")) {
 				terminer();
 				break;
 			}
-
+			
 			if (!str.startsWith("GET "))
 				return null;
 
@@ -98,22 +106,71 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 					return null;
 				}
 			}
+			else {
+				if (!envoyerImage(imageId)) {
+					return null;
+				}
+			}
 
 			break;
+		case ETAT_2_PUSH :
+			str = sc.nextLine();
 
+			if (str.startsWith("END")) {
+				if (envoiPush != null) {
+					envoiPush.arreter();
+					Thread.yield();
+				}
+				terminer();
+				break;
+			}
+			
+			if (!str.startsWith("START"))
+				return null;
+
+			if (!sc.nextLine().equals(""))
+				return null;
+			
+			if (envoiPush == null) {
+				envoiPush = new ThreadEnvoiPush(this);
+				envoiPush.start();
+			}
+			else {
+				envoiPush.reprendre();
+			}
+			
+			etat = ETAT_3_PUSH;
+			
+			break;
+		case ETAT_3_PUSH :
+			str = sc.nextLine();
+
+			if (str.startsWith("END")) {
+				envoiPush.arreter();
+				Thread.yield();
+				terminer();
+				break;
+			}
+			
+			if (!str.startsWith("PAUSE"))
+				return null;
+
+			if (!sc.nextLine().equals(""))
+				return null;
+			
+			envoiPush.mettreEnPause();
+			
+			etat = ETAT_2_PUSH;
+			
+			break;
 		}
 
 		return null;
 	}
 
-	private boolean envoyerImage() {
+	public boolean envoyerImage() {
 
-		File fichierImage = null;
-		if (indexImage < derniereImageId) {
-			fichierImage = lstImg.get(indexImage);
-		} else {
-			return false;
-		}
+		File fichierImage = lstImg.get(indexImage);
 
 		byte[] donnees1 = ("0\r\n" + fichierImage.length() + "\r\n").getBytes();
 		byte[] donnees2 = null;
@@ -129,13 +186,22 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 			outDonnees.write(donnees1);
 			outDonnees.write(donnees2);
 			outDonnees.flush();
-			indexImage++;
+			indexImage = (indexImage+1)%lstImg.size();
 		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+//			e.printStackTrace();
+//			System.exit(1);
 		}
 
 		return true;
+	}
+	
+	private boolean envoyerImage(int id) {
+		if (indexImage >= lstImg.size())
+			return false;
+		
+		indexImage = id;
+		
+		return envoyerImage();
 	}
 
 	protected void terminer() {
