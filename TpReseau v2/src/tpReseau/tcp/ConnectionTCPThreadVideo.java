@@ -1,16 +1,18 @@
-package tpReseau;
+package tpReseau.tcp;
 
 import ihm.Ihm;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ConnectionTCPThreadVideo extends ConnectionTCPThread implements EnvoiImage {
+import tpReseau.Flux;
+
+public class ConnectionTCPThreadVideo extends ConnectionTCPThread {
 
 	private static final int ETAT_1 = 0, ETAT_2_PULL = 1, ETAT_2_PUSH = 2, ETAT_3_PUSH = 3;
 
@@ -21,20 +23,22 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread implements Env
 	private int indexImage;
 
 	private Socket socketDonnees;
-	private OutputStream outDonnees;
+	private BufferedOutputStream outDonnees;
 	
-	private ThreadEnvoiPush envoiPush;
+	private ThreadEnvoiPushTCP envoiPush;
 
 	private ArrayList<File> lstImg;
+	private double ips;
 
 	public ConnectionTCPThreadVideo(int type, Socket socket, String id,
-			ArrayList<File> lstImg, Ihm ihm) throws IOException {
+			ArrayList<File> lstImg, double ips, Ihm ihm) throws IOException {
 		super(socket, ihm);
 		this.type = type;
 		this.id = id;
 		etat = ETAT_1;
 		indexImage = 0;
 		this.lstImg = lstImg;
+		this.ips = ips;
 		envoiPush = null;
 	}
 
@@ -71,7 +75,7 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread implements Env
 			try {
 				socketDonnees = new Socket(getSocket().getInetAddress(),
 						clientPort);
-				outDonnees = socketDonnees.getOutputStream();
+				outDonnees = new BufferedOutputStream(socketDonnees.getOutputStream());
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -134,7 +138,7 @@ public class ConnectionTCPThreadVideo extends ConnectionTCPThread implements Env
 				return null;
 			
 			if (envoiPush == null) {
-				envoiPush = new ThreadEnvoiPush(this);
+				envoiPush = new ThreadEnvoiPushTCP(this, ips);
 				envoiPush.start();
 			}
 			else {

@@ -1,9 +1,10 @@
-package tpReseau;
+package tpReseau.tcp;
 
 import ihm.Ihm;
 
 import java.io.IOException;
 import java.net.Socket;
+
 
 public class ConnectionTCPThreadCatalogue extends ConnectionTCPThread {
 	

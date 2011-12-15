@@ -1,4 +1,4 @@
-package tpReseau;
+package tpReseau.udp;
 
 import ihm.Ihm;
 
@@ -10,16 +10,20 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class ConnectionUDPVideoPush extends ConnectionUDPVideo implements EnvoiImage {
 
-	private static final int TIMEOUT_RECEIVE = 60;
+public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
+
+	private static final int TIMEOUT_RECEIVE = 60000; // en ms
 	
-	private HashMap<ContexteUDP, ThreadEnvoiPush> hmThread;
+	private double ips;
 	
-	public ConnectionUDPVideoPush(int port, String id, ArrayList<File> lstImg,
+	private HashMap<ContexteUDP, ThreadEnvoiPushUDP> hmThread;
+	
+	public ConnectionUDPVideoPush(int port, String id, ArrayList<File> lstImg, double ips, 
 			Ihm ihm) {
 		super(port, id, lstImg, ihm);
-		hmThread = new HashMap<ContexteUDP, ThreadEnvoiPush>();
+		hmThread = new HashMap<ContexteUDP, ThreadEnvoiPushUDP>();
+		this.ips = ips;
 	}
 	
 	private void verifierTemps() {
@@ -30,6 +34,7 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo implements EnvoiI
 			if (System.currentTimeMillis() - contexte.getTsDerniereRequete() > TIMEOUT_RECEIVE) {
 				if (contexte.isEnCours()) {
 					hmThread.get(contexte).arreter();
+					hmThread.remove(contexte);
 				}
 				it.remove();
 			}
@@ -54,12 +59,14 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo implements EnvoiI
 			
 			if (str.startsWith("END")) {
 				hmThread.get(contexte).arreter();
+				hmThread.remove(contexte);
 				lstContexte.remove(contexte);
 				return;
 			}
 			
-			if (str.startsWith("ALIVE"))
+			if (str.startsWith("ALIVE")) {
 				return;
+			}
 			
 			if (str.startsWith("START")) {
 				if (contexte.isEnCours()) {
@@ -67,7 +74,7 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo implements EnvoiI
 					return;
 				}
 				else {
-					ThreadEnvoiPush thr = new ThreadEnvoiPush(this);
+					ThreadEnvoiPushUDP thr = new ThreadEnvoiPushUDP(this, contexte, ips);
 					thr.start();
 					hmThread.put(contexte, thr);
 					contexte.setEncours(true);
@@ -117,11 +124,5 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo implements EnvoiI
 		} catch (NoSuchElementException nsee) {
 			return;
 		}
-	}
-
-	@Override
-	public boolean envoyerImage() {
-		
-		return true;
 	}
 }

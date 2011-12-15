@@ -1,4 +1,4 @@
-package tpReseau;
+package tpReseau.udp;
 
 import ihm.Ihm;
 
@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+import tpReseau.Flux;
 
 public class ConnectionUDPVideo extends ConnectionUDP {
 	
@@ -158,5 +160,6 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 			
 			fragmentCourant++;
 		}
+		System.out.println("Image envoyée");
 	}
 }

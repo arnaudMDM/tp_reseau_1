@@ -1,24 +1,29 @@
 package tpReseau;
 
-public class ThreadEnvoiPush extends Thread {
+public abstract class ThreadEnvoiPush extends Thread {
 
-	private EnvoiImage ev;
+	private long tpsAttente; // en ms
+
 	private boolean pause;
 	private boolean marche;
-	
+
 	private final Object sync = new Object();
-	
-	public ThreadEnvoiPush(EnvoiImage ev) {
-		this.ev = ev;
+
+	public ThreadEnvoiPush(double ips) {
+		tpsAttente = (long) (1000 / ips);
+		
 		pause = false;
 		marche = true;
 	}
-	
+
 	public void run() {
+		long t1, duree;
 		while (marche) {
-			
-			ev.envoyerImage();
-			
+
+			t1 = System.currentTimeMillis();
+
+			envoyer();
+
 			if (pause) {
 				synchronized (sync) {
 					try {
@@ -27,21 +32,31 @@ public class ThreadEnvoiPush extends Thread {
 						e.printStackTrace();
 					}
 				}
+			} else {
+				duree = System.currentTimeMillis() - t1;
+				if (tpsAttente > duree) {
+					try {
+						Thread.sleep(tpsAttente - duree);
+					} catch (InterruptedException e) {
+					}
+				}
 			}
 		}
 	}
-	
+
+	protected abstract void envoyer();
+
 	public void mettreEnPause() {
 		pause = true;
 	}
-	
+
 	public void reprendre() {
 		pause = false;
 		synchronized (sync) {
 			sync.notify();
 		}
 	}
-	
+
 	public void arreter() {
 		marche = false;
 	}

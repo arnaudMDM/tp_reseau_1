@@ -1,8 +1,9 @@
-package tpReseau;
+package tpReseau.tcp;
 
 import ihm.Ihm;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -16,7 +17,7 @@ import java.net.Socket;
 abstract class ConnectionTCPThread extends Thread {
 	
 	private Socket socket;
-	private PrintWriter out;
+	private BufferedWriter out;
 	private BufferedReader in;
 	
 	protected Ihm ihm;
@@ -30,7 +31,7 @@ abstract class ConnectionTCPThread extends Thread {
 	 */
 	public ConnectionTCPThread(Socket socket, Ihm ihm) throws IOException {
 		this.socket = socket;
-		out = new PrintWriter(socket.getOutputStream(), false);
+		out = new BufferedWriter(new PrintWriter(socket.getOutputStream(), false));
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
 		this.ihm = ihm;
@@ -97,7 +98,7 @@ abstract class ConnectionTCPThread extends Thread {
 				
 				reponse = traiterRequete(requete.toString());
 				if (reponse != null && marche) {
-					out.print(reponse);
+					out.write(reponse);
 					out.flush();
 				}
 	    	}

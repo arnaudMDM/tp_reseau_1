@@ -2,11 +2,16 @@ package tpReseau;
 
 import ihm.Ihm;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import tpReseau.tcp.ConnectionTCPVideo;
+import tpReseau.udp.ConnectionUDPVideo;
+import tpReseau.udp.ConnectionUDPVideoPush;
 
 public class Flux {
 	
@@ -61,16 +66,16 @@ public class Flux {
 	
 	boolean demarrer(Ihm ihm) {
 		if (protocole.equals("TCP_PULL")) {
-			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PULL, port, id, lstImg, ihm).start();
+			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PULL, port, id, lstImg, .0, ihm).start();
 		}
 		else if (protocole.equals("TCP_PUSH")) {
-			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PUSH, port, id, lstImg, ihm).start();
+			new ConnectionTCPVideo(ConnectionTCPVideo.TYPE_PUSH, port, id, lstImg, ips, ihm).start();
 		}
 		else if (protocole.equals("UDP_PULL")) {
 			new ConnectionUDPVideo(port, id, lstImg, ihm).start();
 		}
 		else if (protocole.equals("UDP_PUSH")) {
-			new ConnectionUDPVideoPush(port, id, lstImg, ihm).start();
+			new ConnectionUDPVideoPush(port, id, lstImg, ips, ihm).start();
 		}
 		else {
 			return false;
@@ -80,7 +85,7 @@ public class Flux {
 	}
 	
 	public static byte[] lireFichier(File fichier) throws FileNotFoundException {
-		FileInputStream fis = new FileInputStream(fichier);
+		BufferedInputStream fis = new BufferedInputStream(new FileInputStream(fichier));
 
 		byte[] donnees = new byte[(int) fichier.length()];
 		try {

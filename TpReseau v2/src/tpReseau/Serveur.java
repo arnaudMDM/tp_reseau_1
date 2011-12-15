@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import tpReseau.tcp.ConnectionTCPCatalogue;
+
 public class Serveur {
 
 	private static final String ADRESSE_CATALOGUE_DEFAUT = "127.0.0.1";

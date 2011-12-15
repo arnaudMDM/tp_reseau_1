@@ -18,11 +18,11 @@ public abstract class Connection extends Thread {
 		marche = true;
 	}
 	
-	abstract void ouvrirSocket() throws IOException;
+	protected abstract void ouvrirSocket() throws IOException;
 	
-	abstract void ecoute() throws IOException;
+	protected abstract void ecoute() throws IOException;
 	
-	abstract void terminer() throws IOException;
+	protected abstract void terminer() throws IOException;
 	
 	public void run() {
 		try {

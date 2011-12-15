@@ -1,6 +1,7 @@
-package tpReseau;
+package tpReseau.tcp;
 
 import ihm.Ihm;
+import tpReseau.Connection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -33,7 +34,7 @@ public abstract class ConnectionTCP extends Connection {
 	}
 
 	@Override
-	void terminer() throws IOException {
+	protected void terminer() throws IOException {
 		serverSocket.close();
 	}
 
