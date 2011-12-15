@@ -160,6 +160,6 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 			
 			fragmentCourant++;
 		}
-		System.out.println("Image envoyée");
+		//System.out.println("Image envoyée");
 	}
 }

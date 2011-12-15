@@ -46,7 +46,7 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
 		
 		verifierTemps();
 		
-		System.out.println("Requete : "+requete);
+		//System.out.println("Requete : "+requete);
 		
 		ContexteUDP contexte = chercherContexte(adresseExpediteur, portExpediteur);
 		

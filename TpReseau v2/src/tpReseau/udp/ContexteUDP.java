@@ -71,6 +71,7 @@ public class ContexteUDP {
 	}
 
 	public void setTailleFragment(int tailleFragment) {
+		if (tailleFragment <= 0)
 		this.tailleFragment = tailleFragment;
 	}
 	
