@@ -105,7 +105,7 @@ abstract class ConnectionTCPThread extends Thread {
 	    	
 		} catch (IOException e) {
 			//e.printStackTrace();
-			ihm.clientDeconnecte(socket.getInetAddress().toString());
+			//ihm.clientDeconnecte(socket.getInetAddress().toString());
 			terminer();
 		}
 	    

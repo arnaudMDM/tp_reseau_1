@@ -6,7 +6,6 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -26,6 +25,7 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
 		this.ips = ips;
 	}
 	
+	/*
 	private void verifierTemps() {
 		Iterator<ContexteUDP> it = lstContexte.iterator();
 		
@@ -40,15 +40,27 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
 			}
 		}
 	}
+	*/
+	
+	private boolean verifierTemps(ContexteUDP contexte) {
+		if (System.currentTimeMillis() - contexte.getTsDerniereRequete() > TIMEOUT_RECEIVE) {
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	protected void traiterRequete(String requete, InetAddress adresseExpediteur, int portExpediteur) {
 		
-		verifierTemps();
-		
 		//System.out.println("Requete : "+requete);
 		
 		ContexteUDP contexte = chercherContexte(adresseExpediteur, portExpediteur);
+		
+		if (!verifierTemps(contexte)) {
+			hmThread.get(contexte).arreter();
+			hmThread.remove(contexte);
+			lstContexte.remove(contexte);
+		}
 		
 		contexte.setTsDernierEnvoi(System.currentTimeMillis());
 		
@@ -103,8 +115,6 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
 				return;
 			}
 			
-			contexte.creerPacketEnvoi(portRecu);
-			
 			str = sc.nextLine();
 			if (!str.startsWith("FRAGMENT_SIZE "))
 				return;
@@ -114,11 +124,14 @@ public class ConnectionUDPVideoPush extends ConnectionUDPVideo {
 			} catch (NumberFormatException nfe) {
 				return;
 			}
+			if (tailleFragmentRecue <= 0)
+				return;
 			
 			str = sc.nextLine();
 			if (!str.equals(""))
 				return;
 			
+			contexte.creerPacketEnvoi(portRecu);
 			contexte.setTailleFragment(tailleFragmentRecue);
 			contexte.setImgCourante(-1);
 		} catch (NoSuchElementException nsee) {

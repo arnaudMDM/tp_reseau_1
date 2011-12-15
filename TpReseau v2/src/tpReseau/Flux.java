@@ -7,11 +7,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import tpReseau.tcp.ConnectionTCPVideo;
 import tpReseau.udp.ConnectionUDPVideo;
 import tpReseau.udp.ConnectionUDPVideoPush;
+import tpReseau.udp.Multicast;
 
 public class Flux {
 	
@@ -76,6 +79,13 @@ public class Flux {
 		}
 		else if (protocole.equals("UDP_PUSH")) {
 			new ConnectionUDPVideoPush(port, id, lstImg, ips, ihm).start();
+		}
+		else if (protocole.equals("MCAST_PUSH")) {
+			try {
+				new Multicast(InetAddress.getByName(adresse), port, lstImg, ips).start();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
 		}
 		else {
 			return false;

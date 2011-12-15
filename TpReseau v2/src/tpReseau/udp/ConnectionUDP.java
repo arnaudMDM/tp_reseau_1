@@ -2,13 +2,13 @@ package tpReseau.udp;
 
 import ihm.Ihm;
 
+import tpReseau.Connection;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-
-import tpReseau.Connection;
 
 public abstract class ConnectionUDP extends Connection {
 	

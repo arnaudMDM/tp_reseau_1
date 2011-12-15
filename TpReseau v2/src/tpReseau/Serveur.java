@@ -15,6 +15,8 @@ public class Serveur {
 	private static final String ADRESSE_CATALOGUE_DEFAUT = "127.0.0.1";
 	private static final int PORT_CATALOGUE_DEFAUT = 5020;
 	
+	private String adresseCatalogue;
+	
 	private Ihm ihm;
 	private ArrayList<Flux> lstFlux;
 
@@ -22,10 +24,12 @@ public class Serveur {
 		
 		lstFlux = new ArrayList<Flux>();
 		
-		String catalogue = creerCatalogue(adresseCatalogue, portCatalogue);
+		this.adresseCatalogue = adresseCatalogue;
 		
 		this.ihm = ihm;
-
+		
+		String catalogue = creerCatalogue(adresseCatalogue, portCatalogue);
+		
 		ConnectionTCPCatalogue connectionCatalogue = new ConnectionTCPCatalogue(portCatalogue, catalogue, ihm);
 		connectionCatalogue.start();
 		
@@ -128,13 +132,13 @@ public class Serveur {
 					case 3:
 						if (str.startsWith("Address: ")) {
 							adresseFlux = str.substring(9);
+							etat++;
+							break;
 						}
 						else {
-							ihm.afficherErreur("Fichier " + file.getAbsolutePath() + " mal formé");
-							erreur = true;
+							adresseFlux = adresseCatalogue;
+							etat++;
 						}
-						etat++;
-						break;
 					case 4:
 						if (str.startsWith("Port: ")) {
 							try {
@@ -159,6 +163,10 @@ public class Serveur {
 									&& !protocoleFlux.equals("UDP_PUSH")
 									&& !protocoleFlux.equals("MCAST_PUSH")) {
 								ihm.afficherErreur("Protocole incorrect dans le fichier " + file.getAbsolutePath());
+								erreur = true;
+							}
+							if (protocoleFlux.equals("MCAST_PUSH") && adresseFlux == ADRESSE_CATALOGUE_DEFAUT) {
+								ihm.afficherErreur("Multicast impossible sur l'adresse " + adresseFlux);
 								erreur = true;
 							}
 						}
@@ -205,9 +213,13 @@ public class Serveur {
 		String adresseCatalogue;
 		int portCatalogue;
 		
-		if (args.length > 2) {
-			adresseCatalogue = args[1];
-			portCatalogue = Integer.parseInt(args[2]);
+		if (args.length == 1) {
+			adresseCatalogue = args[0];
+			portCatalogue = PORT_CATALOGUE_DEFAUT;
+		}
+		else if (args.length > 1) {
+			adresseCatalogue = args[0];
+			portCatalogue = Integer.parseInt(args[1]);
 		}
 		else {
 			adresseCatalogue = ADRESSE_CATALOGUE_DEFAUT;

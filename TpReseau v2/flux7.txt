@@ -1,8 +1,9 @@
-ID: 19
-Name: video3
+ID: 42
+Name: video5
 Type: JPEG
-Port: 5026
-Protocol: TCP_PUSH
+Address: 225.5.5.5
+Port: 5028
+Protocol: MCAST_PUSH
 IPS: 20
 .\flux2\img1.jpg
 .\flux2\img2.jpg

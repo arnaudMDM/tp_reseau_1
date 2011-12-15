@@ -2,6 +2,8 @@ package tpReseau.udp;
 
 import ihm.Ihm;
 
+import tpReseau.Flux;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-
-import tpReseau.Flux;
 
 public class ConnectionUDPVideo extends ConnectionUDP {
 	
@@ -82,8 +82,6 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 					return;
 				}
 				
-				contexte.creerPacketEnvoi(portRecu);
-				
 				str = sc.nextLine();
 				if (!str.startsWith("FRAGMENT_SIZE "))
 					return;
@@ -93,11 +91,14 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 				} catch (NumberFormatException nfe) {
 					return;
 				}
+				if (tailleFragmentRecue <= 0)
+					return;
 				
 				str = sc.nextLine();
 				if (!str.equals(""))
 					return;
 				
+				contexte.creerPacketEnvoi(portRecu);
 				contexte.setTailleFragment(tailleFragmentRecue);
 				contexte.setImgCourante(-1);
 			}
@@ -120,7 +121,12 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 		
 		int fragmentCourant = 0;
 		imgCourante = (imgCourante+1)%lstImg.size();
-		int nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment+1;
+		int nbFragments;
+		if (lstImg.get(imgCourante).length()%tailleFragment == 0)
+			nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment;
+		else
+			nbFragments = (int)lstImg.get(imgCourante).length()/tailleFragment+1;
+
 		byte[] tabImg = null;
 		try {
 			tabImg = Flux.lireFichier(lstImg.get(imgCourante));
