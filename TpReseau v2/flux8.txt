@@ -1,0 +1,8 @@
+ID: 458
+Name: eclairs3
+Type: BMP
+Address: 127.0.0.1
+Port: 5029
+Protocol: TCP_PULL
+IPS: 0.20
+eclairs.bmp
