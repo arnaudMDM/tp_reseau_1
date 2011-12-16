@@ -91,8 +91,6 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 				} catch (NumberFormatException nfe) {
 					return;
 				}
-				if (tailleFragmentRecue <= 0)
-					return;
 				
 				str = sc.nextLine();
 				if (!str.equals(""))
@@ -111,6 +109,9 @@ public class ConnectionUDPVideo extends ConnectionUDP {
 		
 		int imgCourante = contexte.getImgCourante();
 		int tailleFragment = contexte.getTailleFragment();
+		
+		if (tailleFragment == 0)
+			return;
 		
 		if (id == -1) {
 			contexte.setImgCourante((imgCourante+1)%lstImg.size());
