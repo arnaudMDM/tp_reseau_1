@@ -1,7 +1,7 @@
 ID: 15
 Name: video2
 Type: JPEG
-Address: 125.1.1.1
+Address: 127.0.0.1
 Port: 5025
 Protocol: UDP_PULL
 IPS: 20
