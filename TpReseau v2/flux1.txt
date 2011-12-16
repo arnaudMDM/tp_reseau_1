@@ -1,8 +1,0 @@
-ID: 8
-Name: eclairs
-Type: JPEG
-Address: 127.0.0.1
-Port: 5022
-Protocol: TCP_PULL
-IPS: 0.20
-eclairs.jpg

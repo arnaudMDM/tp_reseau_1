@@ -4,7 +4,7 @@ Type: JPEG
 Address: 127.0.0.1
 Port: 5023
 Protocol: TCP_PULL
-IPS: 25
+IPS: 20
 .\flux2\img1.jpg
 .\flux2\img2.jpg
 .\flux2\img3.jpg

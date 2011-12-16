@@ -1,8 +1,12 @@
 ID: 4444
-Name: eclairs2
-Type: JPEG
+Name: nombres
+Type: BMP
 Address: 127.0.0.1
 Port: 5024
 Protocol: UDP_PULL
-IPS: 0.20
-eclairs.jpg
+IPS: 1
+.\flux1\img1.bmp
+.\flux1\img2.bmp
+.\flux1\img3.bmp
+.\flux1\img4.bmp
+.\flux1\img5.bmp
